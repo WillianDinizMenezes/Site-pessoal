@@ -36,30 +36,8 @@ O projeto representa a transição de um ambiente manual para uma estrutura **10
 
 ### 🔄 Fluxo de Dados e Componentes
 
-```
-┌─────────┐      ┌──────────────┐      ┌──────────────┐      ┌─────────────┐
-│  User   │─────▶│  Route 53    │─────▶│  CloudFront  │─────▶│  S3 Bucket  │
-│ Browser │      │     DNS      │      │  CDN + SSL   │      │   (Private) │
-└─────────┘      └──────────────┘      └──────────────┘      └─────────────┘
-                                              │
-                                              │ ACM Certificate
-                                              ▼
-                                       ┌──────────────┐
-                                       │     ACM      │
-                                       │   SSL/TLS    │
-                                       └──────────────┘
+<img width="1654" height="1169" alt="site-pessoal-automated-cloud-infrastructure-aws-cicd drawio" src="https://github.com/user-attachments/assets/c0449b8b-164c-454b-a7b7-caca4bb25c2d" />
 
-┌─────────────┐      ┌──────────────┐      ┌──────────────┐
-│   GitHub    │─────▶│ CodePipeline │─────▶│  CodeBuild   │
-│  git push   │      │  Orquestração│      │ Sync + Cache │
-└─────────────┘      └──────────────┘      └──────────────┘
-                                                   │
-                                                   ▼
-                                            ┌──────────────┐
-                                            │CloudFormation│
-                                            │     IaC      │
-                                            └──────────────┘
-```
 
 ### 🔐 Componentes Principais
 
@@ -162,8 +140,18 @@ Todo o ambiente pode ser recriado em minutos via CloudFormation
 CDN com pontos de presença em todo o mundo
 
 ---
+📸 **Evidências Visuais**
+Esteira de CI/CD Finalizada
+Acompanhe o processo de deploy automatizado em tempo real:
 
-## 🛠️ Tecnologias Utilizadas
+<img width="1359" height="591" alt="deploy funcionando" src="https://github.com/user-attachments/assets/b4969b9a-502c-442c-bad7-001b31fce87f" />
+
+Site no Ar com HTTPS
+Comprovação do acesso seguro ao site customizado:
+
+<img width="1366" height="768" alt="Segurança funcionando" src="https://github.com/user-attachments/assets/2b62c282-feae-4e6a-ba72-049ecff5a241" />
+
+## 🛠️ Tecnologias Utilizadas<img width="1654" height="1169" alt="site-pessoal-automated-cloud-infrastructure-aws-cicd drawio" src="https://github.com/user-attachments/assets/fada01d9-ff0f-403b-8428-957a20554af1" />
 
 <div align="center">
 
