@@ -1,58 +1,51 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Fase 2 - Certificado SSL, CloudFront OAC e DNS Record para willdiniz.com.br
+Description: Fase 2 - Deploy Limpo com Suporte a Root e WWW
 
 Parameters:
   DomainName:
     Type: String
     Default: willdiniz.com.br
+  WwwDomainName:
+    Type: String
+    Default: www.willdiniz.com.br
   HostedZoneId:
     Type: String
-    Description: O ID da Hosted Zone (criado na Fase 1)
   BucketName:
     Type: String
-    Description: O nome do Bucket S3 (criado na Fase 1)
+  CertificateArn:
+    Type: String
+    Description: "Cole o ARN do seu certificado (aquele que tem os dois dominios)"
 
 Resources:
-  # 1. Certificado SSL com Validação Automática via DNS
-  MyCertificate:
-    Type: AWS::CertificateManager::Certificate
-    Properties:
-      DomainName: !Ref DomainName
-      ValidationMethod: DNS
-      DomainValidationOptions:
-        - DomainName: !Ref DomainName
-          HostedZoneId: !Ref HostedZoneId
-
-  # 2. Origin Access Control (OAC) - Padrão de segurança atual
   MyOAC:
     Type: AWS::CloudFront::OriginAccessControl
     Properties: 
       OriginAccessControlConfig: 
         Description: !Sub "Acesso seguro para ${DomainName}"
-        Name: !Sub "OAC-${AWS::StackName}"
+        Name: !Sub "OAC-Portfolio-Novo"
         OriginAccessControlOriginType: s3
         SigningBehavior: always
         SigningProtocol: sigv4
 
-  # 3. Distribuição CloudFront
   MyDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
       DistributionConfig:
         Aliases:
           - !Ref DomainName
+          - !Ref WwwDomainName
         Enabled: true
         DefaultRootObject: index.html
         ViewerCertificate:
-          AcmCertificateArn: !Ref MyCertificate
+          AcmCertificateArn: !Ref CertificateArn
           SslSupportMethod: sni-only
           MinimumProtocolVersion: TLSv1.2_2021
         Origins:
           - Id: S3Origin
-            DomainName: !Sub "${BucketName}.s3.amazonaws.com"
+            DomainName: !Sub "${BucketName}.s3.${AWS::Region}.amazonaws.com"
             OriginAccessControlId: !GetAtt MyOAC.Id
             S3OriginConfig:
-              OriginAccessIdentity: "" # OAC substitui o OAI antigo
+              OriginAccessIdentity: "" 
         DefaultCacheBehavior:
           TargetOriginId: S3Origin
           ViewerProtocolPolicy: redirect-to-https
@@ -60,8 +53,7 @@ Resources:
           ForwardedValues:
             QueryString: false
 
-  # 4. Apontamento do DNS (Alias) para o CloudFront
-  DNSRecord:
+  DNSRecordRoot:
     Type: AWS::Route53::RecordSet
     Properties:
       HostedZoneId: !Ref HostedZoneId
@@ -69,9 +61,18 @@ Resources:
       Type: A
       AliasTarget:
         DNSName: !GetAtt MyDistribution.DomainName
-        HostedZoneId: Z2FDTNDATAQYW2 # ID fixo da AWS para CloudFront
+        HostedZoneId: Z2FDTNDATAQYW2
 
-  # 5. Ajuste da Política do Bucket (Permite o CloudFront ler o S3)
+  DNSRecordWww:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref WwwDomainName
+      Type: A
+      AliasTarget:
+        DNSName: !GetAtt MyDistribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2
+
   MyBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
@@ -86,12 +87,10 @@ Resources:
               Service: "cloudfront.amazonaws.com"
             Condition:
               StringEquals:
-                AWS:SourceArn: !Sub "arn:aws:partition:cloudfront::${AWS::AccountId}:distribution/${MyDistribution}"
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${MyDistribution}"
 
 Outputs:
-  CloudFrontURL:
-    Description: URL da CDN
-    Value: !GetAtt MyDistribution.DomainName
   DistributionId:
-    Description: ID da Distribuição (Anote para o Pipeline!)
     Value: !Ref MyDistribution
+  CloudFrontDomain:
+    Value: !GetAtt MyDistribution.DomainName
