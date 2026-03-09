@@ -233,6 +233,38 @@ h3 {
     pointer-events: none;
 }
 
+/* ===== Back to Top Button ===== */
+.back-to-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 3.5rem;
+    height: 3.5rem;
+    background: var(--color-primary);
+    color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    z-index: 1000;
+    border: 2px solid black;
+    box-shadow: 4px 4px 0px black;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.back-to-top.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.back-to-top:hover {
+    transform: translateY(-5px);
+    box-shadow: 6px 6px 0px black;
+    filter: brightness(1.1);
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 992px) {
     .colossal-text {

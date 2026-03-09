@@ -14,15 +14,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const docHeight = document.documentElement.scrollHeight - window.innerHeight;
         const scrollPercent = (scrollTop / docHeight) * 100;
         progressBar.style.width = scrollPercent + '%';
-        
+
         // Header transparency on scroll
         const header = document.querySelector('.header');
+        const backToTop = document.querySelector('#backToTop');
+
         if (scrollTop > 50) {
             header.style.background = 'rgba(5, 5, 5, 0.9)';
             header.style.padding = '1.5rem var(--grid-gutter)';
         } else {
             header.style.background = 'var(--color-bg)';
             header.style.padding = '2rem var(--grid-gutter)';
+        }
+
+        // Show/Hide Back to Top
+        if (scrollTop > 500) {
+            backToTop.classList.add('show');
+        } else {
+            backToTop.classList.remove('show');
         }
     });
 
